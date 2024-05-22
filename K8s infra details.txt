@@ -1,0 +1,31 @@
+Azure Container registory
+Resource group:K8s
+Registry Name:mypythonapp01
+Login server name:mypythonapp01.azurecr.io
+
+
+Kubernetes
+
+Kubernetes cluster name:mypythonappKC
+
+
+Give acr pull access to mypythonappKC
+
+How to push the docker image to Azure container registory
+
+az login
+az acr login --name mypythonapp01
+docker tag mybucketlist mypythonapp01.azurecr.io/mybucketlist:latest
+docker push mypythonapp01.azurecr.io/mybucketlist:latest
+
+
+az login
+az aks get-credentials --resource-group K8s --name mypythonappKC
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl get service my-python-service --watch
+
+curl http://10.0.167.175:80
+
+
+
