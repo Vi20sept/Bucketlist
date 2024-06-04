@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Vi20sept/Bucketlist.git']])
+            }
+        }
+        stage('Build'){
+            steps{
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Vi20sept/Bucketlist.git'
+                bat 'python app.py'
+            }
+        }
+        stage('Test'){
+            steps{
+                echo "This is tested"
+            }
+        }
+        
+    }
+}
+
+
+
+
+Using Environment variable
+
+pipeline {
+    agent any
+
+    environment {
+        VIRTUAL_ENV = "${env.WORKSPACE}\\venv"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Vi20sept/Bucketlist.git']])
+            }
+        }
+
+        stage('Setup') {
+            steps {
+                script {
+                    // Create a virtual environment
+                    bat 'python -m venv %VIRTUAL_ENV%'
+                    // Activate virtual environment and install dependencies
+                    bat '''
+                        call %VIRTUAL_ENV%\\Scripts\\activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+
+        stage('Run') {
+            steps {
+                script {
+                    // Run the Flask application
+                    bat '''
+                        call %VIRTUAL_ENV%\\Scripts\\activate
+                        start /b python app.py
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up virtual environment
+            bat 'rmdir /s /q %VIRTUAL_ENV%'
+        }
+    }
+}
+

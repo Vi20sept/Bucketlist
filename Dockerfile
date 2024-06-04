@@ -37,7 +37,7 @@ RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql17
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 80 available to the world outside this container
-EXPOSE 5000
+EXPOSE 8070
 
 
 # Define environment variable
