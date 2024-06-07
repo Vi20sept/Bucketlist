@@ -1,0 +1,37 @@
+// Jenkinsfile
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Vi20sept/Bucketlist.git']])
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build('my-flask-app:latest')
+                }
+            }
+        }
+
+        //stage('Deploy to Staging') {
+            //steps {
+                //script {
+                    //docker.image('my-flask-app:latest').run('-d -p 5000:5000')
+                //}
+            //}
+        //}
+
+        stage('Deploy to Production') {
+            steps {
+                input 'Deploy to production?'
+                script {
+                    docker.image('my-flask-app:latest').run('-d -p 5000:5000')
+                }
+            }
+        }
+    }
+}
