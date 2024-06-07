@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# SQL configurations is done finally to push in jenkins
+# SQL configurations is done finally to push in jenkins withe the help of vivek oosome!
 # Feature/Vivek-debug for debugging
 conn = pyodbc.connect(
     "Driver={ODBC Driver 17 for SQL Server};"
@@ -96,5 +96,4 @@ def logout():
 
 
 if __name__ == "__main__":
-
     app.run(host="0.0.0.0")
