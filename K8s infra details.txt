@@ -9,7 +9,8 @@ Kubernetes
 Kubernetes cluster name:mypythonappKC
 
 
-Give acr pull access to mypythonappKC
+Give acr pull access to mypythonappKC at container registory level.
+
 
 How to push the docker image to Azure container registory
 
@@ -21,9 +22,13 @@ docker push mypythonapp01.azurecr.io/mybucketlist:latest
 
 az login
 az aks get-credentials --resource-group K8s --name mypythonappKC
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
+kubectl apply -f deployment.yml
+kubectl apply -f service.yml
 kubectl get service my-python-service --watch
+
+
+Now take the external IP and port on which it is exposed to the browser and your aaplication will run
+Ex:ExternalIP:5000
 
 curl http://10.0.167.175:80
 
