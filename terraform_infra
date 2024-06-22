@@ -1,0 +1,181 @@
+How to connect terrafor with Azure
+az login
+now create a service principal
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/YOUR_SUBSCRIPTION_ID"
+Subscriptions iD:a3d75254-95de-48a5-99bb-e0d13deb9d94
+
+"appId": "4d6d1869-5dc8-4973-bfed-d31ea06dfe04",
+"displayName": "azure-cli-2024-06-09-04-20-50",
+"password": "th_8Q~3efu552OgdQx~6vgvlmO-NGdEJ0xMkZbCN",
+"tenant": "05cf0784-96f7-4813-bfe8-96b1cead85d8"
+
+For linux
+
+export ARM_CLIENT_ID="your-appId"
+export ARM_CLIENT_SECRET="your-password"
+export ARM_SUBSCRIPTION_ID="your-subscription-id"
+export ARM_TENANT_ID="your-tenant"
+
+For Windows
+
+set ARM_CLIENT_ID="your-appId"
+set ARM_CLIENT_SECRET="th_8Q~3efu552OgdQx~6vgvlmO-NGdEJ0xMkZbCN"
+set ARM_SUBSCRIPTION_ID="a3d75254-95de-48a5-99bb-e0d13deb9d94"
+set ARM_TENANT_ID="your-tenant"
+
+Tenant ID:05cf0784-96f7-4813-bfe8-96b1cead85d8
+
+# Terraform for windows server
+
+provider "azurerm" {
+features {}
+}
+
+resource "azurerm_resource_group" "example" {
+name = "example-resources"
+location = "East US"
+}
+
+resource "azurerm_virtual_network" "example" {
+name = "example-network"
+address_space = ["10.0.0.0/16"]
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+}
+
+resource "azurerm_subnet" "example" {
+name = "example-subnet"
+resource_group_name = azurerm_resource_group.example.name
+virtual_network_name = azurerm_virtual_network.example.name
+address_prefixes = ["10.0.2.0/24"]
+}
+
+resource "azurerm_public_ip" "example" {
+name = "example-public-ip"
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+allocation_method = "Dynamic"
+}
+
+resource "azurerm_network_interface" "example" {
+name = "example-nic"
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+
+ip_configuration {
+name = "internal"
+subnet_id = azurerm_subnet.example.id
+private_ip_address_allocation = "Dynamic"
+public_ip_address_id = azurerm_public_ip.example.id
+}
+}
+
+/_resource "azurerm_availability_set" "example" {
+name = "example-avset"
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+#sku = "Aligned"
+}_/
+
+resource "azurerm_virtual_machine" "example" {
+name = "example-vm"
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+network_interface_ids = [azurerm_network_interface.example.id]
+vm_size = "Standard_B1s"
+#availability_set_id = azurerm_availability_set.example.id
+
+storage_os_disk {
+name = "example-os-disk"
+caching = "ReadWrite"
+create_option = "FromImage"
+managed_disk_type = "Standard_LRS"
+}
+
+storage_image_reference {
+publisher = "MicrosoftWindowsServer"
+offer = "WindowsServer"
+sku = "2019-Datacenter"
+version = "latest"
+}
+
+os_profile {
+computer_name = "hostname"
+admin_username = "adminuser"
+admin_password = "Password1234!"
+}
+
+os_profile_windows_config {
+provision_vm_agent = true
+#enable_automatic_updates = false
+}
+}
+
+# Terraform for linux
+
+provider "azurerm" {
+features {}
+}
+
+resource "azurerm_resource_group" "example" {
+name = "example-resources"
+location = "East US"
+}
+
+resource "azurerm_virtual_network" "example" {
+name = "example-network"
+address_space = ["10.0.0.0/16"]
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+}
+
+resource "azurerm_subnet" "example" {
+name = "example-subnet"
+resource_group_name = azurerm_resource_group.example.name
+virtual_network_name = azurerm_virtual_network.example.name
+address_prefixes = ["10.0.2.0/24"]
+}
+
+resource "azurerm_network_interface" "example" {
+name = "example-nic"
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+
+ip_configuration {
+name = "internal"
+subnet_id = azurerm_subnet.example.id
+private_ip_address_allocation = "Dynamic"
+}
+}
+
+resource "azurerm_virtual_machine" "example" {
+name = "example-vm"
+location = azurerm_resource_group.example.location
+resource_group_name = azurerm_resource_group.example.name
+network_interface_ids = [azurerm_network_interface.example.id]
+vm_size = "Standard_DS1_v2"
+
+storage_os_disk {
+name = "example-os-disk"
+caching = "ReadWrite"
+create_option = "FromImage"
+managed_disk_type = "Standard_LRS"
+}
+
+storage_image_reference {
+publisher = "Canonical"
+offer = "UbuntuServer"
+sku = "18.04-LTS"
+version = "latest"
+}
+
+os_profile {
+computer_name = "hostname"
+admin_username = "adminuser"
+admin_password = "Password1234!"
+}
+
+os_profile_linux_config {
+disable_password_authentication = false
+}
+}
