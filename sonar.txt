@@ -1,0 +1,15 @@
+How to connect sonar cube with your local system
+
+1. Open the repository were your code is written in VS code.
+2. Open the new terminal and type docker pull sonarqube , this will create sonarqube image.
+3. Now create a conatiner type docker run -it -d -p 9000:9000 --name sonarcon docker image name.
+4. Open the browser and type http://localhost:9000 , it will ask for user name and password just type admin for user name and password as well.
+5. Now open the browser and download sonar scanner https://docs.sonarsource.com/sonarqube/9.9/analyzing-source-code/scanners/sonarscanner/
+6. Click on windows 64-bit , after download extract all, open the folder and go to conf folder and open sonar-scanner.properties.
+7. In sonar-scanner.properties , go to sonar.host.url and uncomment it.and type sonar.host.url=http://localhost:9000 this and save it.
+8. Now go to bin folder and copy the path and now open environment variable and paste the path in both user aand system.
+9. Now go to sonar cube and click on create project give the requirements and click on next.
+10. Now click on generate code  and then click on continue.
+11. Now click on other option and then click on windows, now copy the given script.
+12. Now got to VS code and paste the script were your code is open it will scan the code.
+13 Wait for 5 mins and  then go to sonarqube your code has been scanned.
