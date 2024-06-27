@@ -13,3 +13,59 @@ How to connect sonar cube with your local system
 11. Now click on other option and then click on windows, now copy the given script.
 12. Now got to VS code and paste the script were your code is open it will scan the code.
 13 Wait for 5 mins and  then go to sonarqube your code has been scanned.
+
+
+How to connect sonar qube with jenkins pipeline(Jenkins declarative method)
+
+Open the jenkins , now go to manage jenkins , then go to plugins
+Now install the sonarqube scanner
+Now under manage jenkins go to tools.
+Under Sonarqube Scanner installations , click on the drop down and give the name.
+If your system has sonarqube scanner then untick the installation and give the sonarqube scanner path under sonar_runner_home
+For Ex:C:\Users\vivek\Downloads\sonar-scanner-cli-6.0.0.4432-windows\sonar-scanner-6.0.0.4432-windows
+Then under manage jenkins now go to system
+Under sonarquve server give the name and paste the sonarqube URL(http://localhost:9000)
+Now under server authentication token copy the token from the sonarqube which is generated while creating project in sonarqube.
+Click on Add and under kind select secret text Option giev the ID name and click on ADD.
+Now under drop down select the token and then click on apply.
+Under manage jenkins go to tools , under JDK give the name and if your system has JDk and untick the Install automatically option.
+Now give the path of your system JDK (C:\Program Files\Microsoft\jdk-21.0.3.9-hotspot)
+Now click on apply.
+Now go to jenkins Dashboard and then click  on new Item and giev the project name and select the pipeline option and  create.
+Now go to configure option of the project created.
+Under pipeline script paste the below script and click on apply.
+pipeline {
+    agent any
+    
+    environment {
+        scannerHome = tool 'SonarQube_scanner' // Ensure this name matches the tool configuration in Jenkins
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Vi20sept/Bucketlist.git'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Print scannerHome for debugging
+                    echo "SonarQube Scanner Home: ${scannerHome}"
+
+                    withSonarQubeEnv('SonarQube_server') { // Ensure this name matches the SonarQube server configuration in Jenkins
+                        bat "sonar-scanner.bat -D sonar.projectKey=jenkins-pipeline  -D sonar.sources=.  -D sonar.host.url=http://localhost:9000  -D sonar.token=sqp_b6c7564861d7e2986911128b15b67ef505983c93"
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+Now click on Build option of the project created, after successfull configuration .
+Go to sonarqube and go to project created you will see that your code has been analysed.
+
+
+
+    
