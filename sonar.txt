@@ -65,7 +65,3 @@ pipeline {
 
 Now click on Build option of the project created, after successfull configuration .
 Go to sonarqube and go to project created you will see that your code has been analysed.
-
-
-
-    
