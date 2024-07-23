@@ -4,7 +4,7 @@ import subprocess
 def deploy_app():
     try:
         # Pull the latest code from the repository
-        subprocess.run(["git", "pull", "origin", "main"], check=True)
+        # subprocess.run(["git", "pull", "origin", "main"], check=True)
 
         # Build the application
         subprocess.run(

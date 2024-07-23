@@ -254,3 +254,25 @@ resource "azurerm_virtual_machine" "example" {
     disable_password_authentication = false
   }
 }
+
+
+How does the state lock works in Azure?
+
+
+1. Create a storage account having resource account(xyz) different from were the resource(abc) is created in main.tf file.
+2.Create  a conatiner.
+3 Now create a backend.tf file in VS code were your main.tf is running.
+4.Your backend.tf must be as follows:
+
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "example-resources"      # Can be passed via `-backend-config=`"resource_group_name=<resource group name>"` in the `init` command.
+    storage_account_name = "essenstgacc"            # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+    container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
+    key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
+  }
+}
+
+5.Now run the terraform init command.
+6.Now run the terraform plan command.
+7.Now run the terraform apply command.
