@@ -276,3 +276,7 @@ terraform {
 5.Now run the terraform init command.
 6.Now run the terraform plan command.
 7.Now run the terraform apply command.
+
+IMP link for terraform document
+https://developer.hashicorp.com/terraform/language/settings/backends/azurerm
+https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_backend

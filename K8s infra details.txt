@@ -4,13 +4,12 @@ Registry Name:mypythonapp01
 Login server name:mypythonapp01.azurecr.io
 
 
-Kubernetes
+Kubernetes services
 
 Kubernetes cluster name:mypythonappKC
 
 
-Give acr pull access to mypythonappKC at container registory level.
-
+Give acr pull access to mypythonappKC at container registry level
 
 How to push the docker image to Azure container registory
 
@@ -22,9 +21,44 @@ docker push mypythonapp01.azurecr.io/mybucketlist:latest
 
 az login
 az aks get-credentials --resource-group K8s --name mypythonappKC
-kubectl apply -f deployment.yml
-kubectl apply -f service.yml
-kubectl get service my-python-service --watch
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+
+
+
+Implement Network and Security Plugins
+Install Network Policies (e.g., Calico)
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl apply -f network.yml
+kubectl apply -f RBAC.yml
+
+Set Up NGINX Ingress Controller
+Install NGINX Ingress Controller using Helm(install Helm 1st)
+run below command after installing helm
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.replicaCount=2
+
+kubectl apply -f ingress.yaml
+
+Enabling Metrics Server
+Install Metrics Server:kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl get deployment metrics-server -n kube-system
+kubectl apply -f HPA.yml
+kubectl get hpa
+
+Set Up Monitoring and Logging
+Enable Azure Monitor for Containers
+az aks enable-addons --resource-group myResourceGroup --name myAKSCluster --addons monitoring
+
+
+Install Prometheus and Grafana
+run the below command
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm install prometheus prometheus-community/prometheus
+helm install grafana grafana/grafana
 
 
 Now take the external IP and port on which it is exposed to the browser and your aaplication will run

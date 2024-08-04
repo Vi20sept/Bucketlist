@@ -81,3 +81,5 @@ resource "azurerm_virtual_machine" "example" {
     #enable_automatic_updates = false
   }
 }
+
+
