@@ -7,6 +7,8 @@ Login server name:mypythonapp01.azurecr.io
 Kubernetes services
 
 Kubernetes cluster name:mypythonappKC
+while creating services select the option of enable public ip for all the pods.
+Enable the Prometheus option.
 
 
 Give acr pull access to mypythonappKC at container registry level
@@ -39,7 +41,7 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.replicaCount=2
 
-kubectl apply -f ingress.yaml
+kubectl apply -f ingress.yml
 
 Enabling Metrics Server
 Install Metrics Server:kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -50,6 +52,7 @@ kubectl get hpa
 Set Up Monitoring and Logging
 Enable Azure Monitor for Containers
 az aks enable-addons --resource-group myResourceGroup --name myAKSCluster --addons monitoring
+az aks enable-addons --resource-group K8s --name mypythonappKC --addons monitoring
 
 
 Install Prometheus and Grafana
@@ -57,9 +60,40 @@ run the below command
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm install prometheus prometheus-community/prometheus
-helm install grafana grafana/grafana
 
+
+helm install prometheus prometheus-community/prometheus
+kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-nodeport-ext
+kubectl expose service prometheus-server --type=LoadBalancer --target-port=9090 --name=prometheus-server-ext
+Now how to expose kube-state-metrics
+kubectl expose service prometheus-kube-state-metrics --type=NodePort --target-port=8080 --name=prometheus-kube-state-metrics-ext
+kubectl port-forward deploy/prometheus-server 9090
+http://localhost:9090
+
+
+helm install grafana grafana/grafana
+kubectl expose service grafana --type=NodePort --target-port=3000 --name=grafana-ext
+kubectl expose service grafana --type=LoadBalancer --target-port=3000 --name=grafana-ext
+How to connect grafana with Prometheus
+Go datasource
+then on the URL give:http://ExternalIP of  prometheus:80
+Then click on Save and test.
+Go to Dashboard 
+Click on import 
+Then give import 3662 or 1860(Cpu and memory utilization)
+Then select  default Prometheus
+Then click on import
+kubectl port-forward svc/grafana 3000:80
+http://localhost:3000
+
+Run  the below  command to get the grafana password
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | % { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
+
+user:admin
+password:uT5u0BliFRoHMXDiRGBIaHU9v17PSotWtWfxLERU
+
+
+Video link for prometheus and Grafana: https://www.youtube.com/watch?v=EeiYpnBHnhY
 
 Now take the external IP and port on which it is exposed to the browser and your aaplication will run
 Ex:ExternalIP:5000
