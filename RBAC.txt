@@ -1,0 +1,213 @@
+YAML for Service Accounts and Roles
+
+# Service account for admin with full cluster access
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-sa
+---
+# ClusterRole for admin service account with full access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cluster-admin-role
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+# ClusterRoleBinding to bind admin-sa to cluster-admin-role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-sa-binding
+subjects:
+- kind: ServiceAccount
+  name: admin-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Service account for general view-only access
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: general-view-sa
+---
+# ClusterRole for general view-only access across the cluster
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: general-view-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "deployments", "configmaps", "nodes"]
+  verbs: ["get", "list", "watch"]
+---
+# ClusterRoleBinding to bind general-view-sa to general-view-role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: general-view-sa-binding
+subjects:
+- kind: ServiceAccount
+  name: general-view-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: general-view-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Service account for namespace-limited view-only access
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: namespace-view-sa
+  namespace: specific-namespace  # Replace with your namespace
+---
+# Role for namespace-limited view-only access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: namespace-view-role
+  namespace: specific-namespace  # Replace with your namespace
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "deployments", "configmaps"]
+  verbs: ["get", "list", "watch"]
+---
+# RoleBinding to bind namespace-view-sa to namespace-view-role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: namespace-view-sa-binding
+  namespace: specific-namespace  # Replace with your namespace
+subjects:
+- kind: ServiceAccount
+  name: namespace-view-sa
+  namespace: specific-namespace  # Replace with your namespace
+roleRef:
+  kind: Role
+  name: namespace-view-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+kubectl apply -f service-accounts.yml
+
+
+
+
+
+
+
+
+
+
+1.Create the namespace(23:21)
+Kubectl create –namespace n1
+Kubectl create –namespace n2
+Kubectl create –namespace n3
+2.Now deploy the application in the n2 namespace
+3.Now generate token for the service account and paste in notepad
+4.Now create kubeconfig file , use Yaml Lint to check the yaml file
+https://www.yamllint.com/
+Get the certificate-authority-data
+cd /home/admin01/.kube
+nano /home/admin01/.kube/config
+
+
+5.Now on the server 1 (28:21)
+Sudo apt update
+Install kubectl
+Now in Vi create vi kubeconfig-admin.yml
+And then export the kubeconfig file
+export KUBECONFIG=/home/admin01/kubeconfig-admin.yml
+install azure cli
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+then
+az login --use-device-code (you will get the code type the code in the below URL)
+ https://microsoft.com/devicelogin 
+az aks get-credentials --resource-group K8s --name mypythonappKC
+now check the permission
+Kubectl get nodes
+Kubectl get ns
+Kubectl get all -n ns2
+
+
+How to check the namespaces created
+  kubectl get serviceaccounts --namespace n2
+
+admin token
+kubectl create token admin-sa --namespace n2
+
+
+general view token
+kubectl create token general-view-sa --namespace n2
+
+namespace view token
+kubectl create token default --namespace n2
+
+
+Kubeconfig for Admin Service Account:
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority-data: <Base64-encoded-CA-data>
+    server: https://<Your-API-Server-URL>
+  name: cluster
+contexts:
+- context:
+    cluster: cluster
+    user: admin-sa
+  name: admin-sa-context
+current-context: admin-sa-context
+users:
+- name: admin-sa
+  user:
+    token: <admin-token>
+
+
+
+Kubeconfig for General View Service Account:
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority-data: <Base64-encoded-CA-data>
+    server: https://<Your-API-Server-URL>
+  name: cluster
+contexts:
+- context:
+    cluster: cluster
+    user: general-view-sa
+  name: general-view-sa-context
+current-context: general-view-sa-context
+users:
+- name: general-view-sa
+  user:
+    token: <general-view-token>
+
+
+Kubeconfig for Namespace-Limited View Service Account:
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority-data: <Base64-encoded-CA-data>
+    server: https://<Your-API-Server-URL>
+  name: cluster
+contexts:
+- context:
+    cluster: cluster
+    namespace: specific-namespace
+    user: namespace-view-sa
+  name: namespace-view-sa-context
+current-context: namespace-view-sa-context
+users:
+- name: namespace-view-sa
+  user:
+    token: <namespace-view-token>
+
