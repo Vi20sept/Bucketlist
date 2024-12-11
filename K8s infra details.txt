@@ -55,6 +55,15 @@ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl apply -f network.yml
 kubectl apply -f RBAC.yml
 
+Install helm
+
+curl -fsSL https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz -o helm.tar.gz
+tar -xzvf helm.tar.gz
+mkdir -p $HOME/bin
+mv linux-amd64/helm $HOME/bin/helm
+rm -rf helm.tar.gz linux-amd64
+
+
 Set Up NGINX Ingress Controller
 Install NGINX Ingress Controller using Helm(install Helm 1st)
 run below command after installing helm
@@ -76,11 +85,15 @@ az aks enable-addons --resource-group myResourceGroup --name myAKSCluster --addo
 az aks enable-addons --resource-group K8s --name mypythonappKC --addons monitoring
 
 
-Install Prometheus and Grafana
+Install repository Prometheus and Grafana
 run the below command
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
+
+install Promethus and granfana
+helm install prometheus prometheus-community/Prometheus
+helm install grafana grafana/grafana
 
 
 helm install prometheus prometheus-community/prometheus
