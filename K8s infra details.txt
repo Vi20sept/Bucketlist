@@ -98,7 +98,7 @@ helm install grafana grafana/grafana
 
 helm install prometheus prometheus-community/prometheus
 kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-nodeport-ext
-kubectl expose service prometheus-server --type=LoadBalancer --target-port=9090 --name=prometheus-server-ext
+kubectl expose service prometheus-server --type=LoadBalancer --port=9090 --target-port=9090 --name=prometheus-server-ext
 Now how to expose kube-state-metrics
 kubectl expose service prometheus-kube-state-metrics --type=NodePort --target-port=8080 --name=prometheus-kube-state-metrics-ext
 kubectl port-forward deploy/prometheus-server 9090
@@ -107,7 +107,7 @@ http://localhost:9090
 
 helm install grafana grafana/grafana
 kubectl expose service grafana --type=NodePort --target-port=3000 --name=grafana-ext
-kubectl expose service grafana --type=LoadBalancer --target-port=3000 --name=grafana-ext
+kubectl expose service grafana --type=LoadBalancer --port=9090 --target-port=3000 --name=grafana-ext
 How to connect grafana with Prometheus
 Go datasource
 then on the URL give:http://ExternalIP of  prometheus:80
