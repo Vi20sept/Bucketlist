@@ -56,6 +56,12 @@ after the docker registry is created got to edit and then at the top you will se
 
 How to create image pull secret to pull the image
 
+From were to get the docker-password
+
+Go to ACR, then go to settings
+Then access key
+Click on admin user, now you will get the user name password and login server as your URL.
+
 kubectl create secret docker-registry mypythonapp0133896efc-auth --docker-server=mypythonapp01.azurecr.io --docker-username=mypythonapp01 --docker-password="ebxkicxBpHwHfZVBusVAZyCO6hUijn07h02W7Ux1w7+ACRCFzwgY"
 kubectl get secret
 
