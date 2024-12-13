@@ -47,6 +47,18 @@ az aks get-credentials --resource-group K8s --name mypythonappKC
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 
+How to create the docker registry service connection
+Go to service connection
+select the docker registry, then select the service principle
+create it with the required fields
+after the docker registry is created got to edit and then at the top you will see the key.
+
+
+How to create image pull secret to pull the image
+
+kubectl create secret docker-registry mypythonapp0133896efc-auth --docker-server=mypythonapp01.azurecr.io --docker-username=mypythonapp01 --docker-password="ebxkicxBpHwHfZVBusVAZyCO6hUijn07h02W7Ux1w7+ACRCFzwgY"
+kubectl get secret
+
 
 
 Implement Network and Security Plugins
