@@ -152,5 +152,134 @@ Ex:ExternalIP:5000
 
 curl http://10.0.167.175:80
 
+How to implement SSl certificate for Https
+
+1.Open Azure Cloud Shell in the Azure portal.
+Click on the Upload/Download button and upload the .crt and .key files.
+
+2.ls -l apps.acs360.com.*
+
+3.If your private key is not decripted then use below.
+How to decript the key
+openssl rsa -in apps.acs360.com.ke -out apps.acs360.com.key
+4.kubectl create secret tls myapp-ssl-secret --cert=apps.acs360.com.crt --key=apps.acs360.com.key
+
+5. deployment.yml file will be as below.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-python-user-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-python-user-prod
+  template:
+    metadata:
+      labels:
+        app: my-python-user-prod
+    spec:
+
+      # imagePullSecrets:
+      #   - name: mypythonapp010edd-auth
+      containers:
+        - name: logincontainer02
+          image: mypythonapp01.azurecr.io/loginimage_prod:$(tag)
+          ports:
+            - containerPort: 443
+
+          volumeMounts:
+            - name: ssl-certificates
+              mountPath: /etc/nginx/ssl # Mount SSL certificates at the expected path
+              readOnly: true
+          env:
+            - name: NGINX_PORT
+              value: "443" # Pass the port as an environment variable
+            
+
+        - name: usercontainer02
+          image: mypythonapp01.azurecr.io/userimage_prod:$(taguser)
+          ports:
+            - containerPort: 8083
+
+        
+        - name: logincontainerapi02
+          image: mypythonapp01.azurecr.io/loginimageapi_prod:$(tagloginapi)
+          ports:
+            - containerPort: 5000
+        - name: usercontainerapi02
+          image: mypythonapp01.azurecr.io/userimageapi_prod:$(taguserapi)
+          ports:
+            - containerPort: 5001
+
+      volumes:
+        - name: ssl-certificates
+          secret:
+            secretName: myapp-ssl-secret # Reference the correct Kubernetes secret
+
+6. Service.yml file as below
+apiVersion: v1
+kind: Service
+metadata:
+  name: login-service-prod
+spec:
+  selector:
+    app: my-python-user-prod
+    
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-prod
+spec:
+  selector:
+    app: my-python-user-prod
+    
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: login-service-api-prod
+spec:
+  selector:
+    app: my-python-user-prod
+    
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-api-prod
+spec:
+  selector:
+    app: my-python-user-prod
+    
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
+  type: LoadBalancer
+
+
+
 
 
