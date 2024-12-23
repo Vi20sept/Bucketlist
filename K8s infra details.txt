@@ -279,6 +279,77 @@ spec:
       targetPort: 5001
   type: LoadBalancer
 
+7. nginx.conf file will be as below
+
+# The events block is required by Nginx to handle worker processes
+events {
+    worker_connections 1024;  # Defines the maximum number of simultaneous connections
+}
+
+# Main context: HTTP configuration block
+http {
+    # General settings for HTTP requests
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    # Server block for handling the Angular app
+    #server {
+        #listen 80;  # Listen on port 80 for HTTP requests
+        #server_name apps.acs360.com;
+
+        # Redirect HTTP to HTTPS
+        #return 301 https://$host$request_uri;
+
+    #}
+
+    server {
+        listen 443 ssl;
+        server_name apps.acs360.com;
+
+        ssl_certificate /etc/nginx/ssl/tls.crt;
+        ssl_certificate_key /etc/nginx/ssl/tls.key;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        # Define the root directory of your Angular build (the output of `ng build`)
+        root /usr/share/nginx/html;
+
+        index index.html;
+
+        # Handle client-side routing by serving index.html for any route
+        location / {
+
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Set caching for static assets (optional for performance)
+        location ~* \.(?:css|js|woff|woff2|eot|ttf|svg|png|jpg|jpeg|gif|ico|html|json)$ {
+
+            #proxy_pass http://20.219.233.150:80;  # Update if needed for upstream
+            #proxy_set_header Host $host;
+            #proxy_set_header X-Real-IP $remote_addr;
+            #proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+
+
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+
+
+            
+        }
+
+        # Handle 404 errors by redirecting to index.html (important for Angular routing)
+        error_page 404 /index.html;
+
+            
+    }
+}
+
+
 
 
 
