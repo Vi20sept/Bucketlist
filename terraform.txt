@@ -32,6 +32,7 @@ set ARM_TENANT_ID="your-tenant"
 
 provider "azurerm" {
 features {}
+subscription_id = "Subscription_id"
 }
 
 resource "azurerm_resource_group" "example" {
