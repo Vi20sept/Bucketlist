@@ -1,4 +1,7 @@
 How to connect terrafor with Azure
+install the Azure CLI :official Azure CLI installation page
+then install terraform official Terraform download page.
+after installing terraform extract the file and just give the path in environment variable in system and in user
 az login
 now create a service principal
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/YOUR_SUBSCRIPTION_ID"
