@@ -16,3 +16,49 @@ spec:
                 name: my-python-app-service
                 port:
                   number: 5000
+
+New ingress.yml for the loadbalancer
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: login-service
+                port:
+                  number: 80
+
+          - path: /user
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 4201
+
+          - path: /loginapi
+            pathType: Prefix
+            backend:
+              service:
+                name: login-service-api
+                port:
+                  number: 5002
+
+          - path: /userapi
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service-api
+                port:
+                  number: 5003
+
