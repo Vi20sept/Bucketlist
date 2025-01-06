@@ -10,3 +10,34 @@ spec:
       port: 5000
       targetPort: 5000
   type: LoadBalancer
+
+
+
+Service.yml file for the load balancer
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: login-service
+spec:
+  selector:
+    app: my-python-user
+  type: LoadBalancer
+  ports:
+    - name: http-login
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: http-user
+      protocol: TCP
+      port: 4201
+      targetPort: 4201
+    - name: http-login-api
+      protocol: TCP
+      port: 5002
+      targetPort: 5002
+    - name: http-user-api
+      protocol: TCP
+      port: 5003
+      targetPort: 5003
+
