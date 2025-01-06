@@ -87,6 +87,11 @@ Install NGINX Ingress Controller using Helm(install Helm 1st)
 run below command after installing helm
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
+
+To make the loadbalancer
+helm install nginx-ingress ingress-nginx/ingress-nginx --namespace default --create-namespace --set controller.service.type=LoadBalancer
+
+To make the no. of replicas
 helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.replicaCount=2
 
 kubectl apply -f ingress.yml
