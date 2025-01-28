@@ -356,6 +356,105 @@ http {
 
 
 
+How to create the dockerfile to copy the files from outside and from inside
+
+Dockerfile.loginapi
+
+# Use the official .NET 8.0 SDK image as the base image
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Set the working directory inside the container
+WORKDIR /src
+
+# Copy the project file and restore any dependencies
+#COPY ["Idcube.Access360.LoginAPI.csproj", "./"]
+
+COPY Idcube.Access360/Login/Idcube.Access360.LoginAPI/Idcube.Access360.LoginAPI.csproj ./Idcube.Access360.LoginAPI.csproj
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy the entire Library folder
+COPY Library/ /src/Library/
+
+# Copy the rest of the files and build the application
+#COPY . .
+
+# Copy the application files
+COPY Idcube.Access360/Login/Idcube.Access360.LoginAPI/ ./
+
+# Publish the application for the release environment
+RUN dotnet publish "Idcube.Access360.LoginAPI.csproj" -c Release -o /app/publish
+
+# Use the official .NET 8.0 Runtime image as the base for the runtime container
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+ENV ASPNETCORE_URLS=http://0.0.0.0:5002
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the published app from the build stage
+COPY --from=build /app/publish .
+
+RUN chmod -R 777 /app
+# Expose the port that the API will run on (default for ASP.NET Core is 5000)
+EXPOSE 5002
+
+# Set the entry point to run the application
+ENTRYPOINT ["dotnet", "Idcube.Access360.LoginAPI.dll"]
+
+
+Dockerfile.userapi
+
+# Use the official .NET 8.0 SDK image as the base image
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Set the working directory inside the container
+WORKDIR /src
+
+# Copy the project file and restore any dependencies
+COPY Idcube.Access360/UserManagement/Idcube.Access360.UserAPI/Idcube.Access360.UserAPI.csproj ./Idcube.Access360.UserAPI.csproj
+
+# Restore dependencies
+#RUN dotnet restore
+
+# Copy the entire Library folder into the build context
+COPY Library/ /src/Library/
+
+# Copy the SP folder
+COPY Idcube.Access360/UserManagement/Idcube.Access360.UserAPI/SP /src/SP
+
+COPY idcube.access360/usermanagement/idcube.access360.userapi/SP /src/SP
+
+
+# Copy the entire application files
+COPY Idcube.Access360/UserManagement/Idcube.Access360.UserAPI/ /src/
+
+# Publish the application for the release environment
+RUN dotnet publish "Idcube.Access360.UserAPI.csproj" -c Release -o /app/publish
+
+# Use the official .NET 8.0 Runtime image as the base for the runtime container
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Configure ASP.NET Core to use a specific URL
+ENV ASPNETCORE_URLS=http://0.0.0.0:5003
+
+# Set the working directory inside the runtime container
+WORKDIR /app
+
+# Copy the published app from the build stage
+COPY --from=build /app/publish .
+
+# Make sure all files in the /app directory have the necessary permissions
+RUN chmod -R 777 /app
+
+# Expose the port that the API will run on
+EXPOSE 5003
+
+# Set the entry point to run the application
+ENTRYPOINT ["dotnet", "Idcube.Access360.UserAPI.dll"]
+
 
 
 
