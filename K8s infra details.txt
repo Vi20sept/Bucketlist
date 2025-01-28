@@ -227,6 +227,35 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: login-service
+spec:
+  selector:
+    app: my-python-user-prod
+  #type: ClusterIP
+  type: LoadBalancer
+  ports:
+    - name: http-login
+      protocol: TCP
+      port: 443
+      targetPort: 443
+    - name: http-user
+      protocol: TCP
+      port: 4201
+      targetPort: 4201
+    - name: http-login-api
+      protocol: TCP
+      port: 5002
+      targetPort: 5002
+    - name: http-user-api
+      protocol: TCP
+      port: 5003
+      targetPort: 5003
+
+
+6. Service.yml file as below
+apiVersion: v1
+kind: Service
+metadata:
   name: login-service-prod
 spec:
   selector:
@@ -454,6 +483,36 @@ EXPOSE 5003
 
 # Set the entry point to run the application
 ENTRYPOINT ["dotnet", "Idcube.Access360.UserAPI.dll"]
+
+
+How to create Kubeconfig file and Ca-certificate and token
+
+kubectl config view --minify -o jsonpath="{.clusters[0].cluster.server}"
+
+Server url:https://access360kcdns-6jye2tgk.hcp.centralindia.azmk8s.io:443
+
+kubectl get serviceAccounts <service-account-name> -n <namespace> -o=jsonpath={.secrets[*].name}
+
+kubectl get serviceAccounts default -n default -o=jsonpath="{.secrets[*].name}"
+
+kubectl get secret <service-account-secret-name> -n <namespace> -o json
+
+kubectl get secret my-token-secret02 -n default -o json
+
+kubectl config view
+
+kubectl config view --raw
+
+
+kubectl -n <namespace> describe secret $(kubectl -n <namespace> get secret | grep <service-account-name> | awk '{print $1}')
+
+kubectl -n default describe secret $(kubectl -n default get secret | grep default | awk '{print $1}')
+
+kubectl create token <service-account-name> -n <namespace>
+
+kubectl create token default -n default
+
+kubectl -n <namespace> describe secret $(kubectl -n <namespace> get secret | grep <service-account-name> | awk '{print $1}')
 
 
 
