@@ -517,3 +517,16 @@ kubectl -n <namespace> describe secret $(kubectl -n <namespace> get secret | gre
 
 
 
+How to reset the az login
+
+Reset the Token Cache (Manual Method)
+Manually delete the token cache files:
+
+Open File Explorer and navigate to:
+%USERPROFILE%\.azure
+Delete the token_cache.json and msal_token_cache.json files.
+Run az login again.
+
+
+
+
