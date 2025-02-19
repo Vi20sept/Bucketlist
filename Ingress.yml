@@ -62,3 +62,33 @@ spec:
                 port:
                   number: 5003
 
+Working ingress.yml file
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-access360-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/default-backend: login-service-prod
+    nginx.ingress.kubernetes.io/server-alias: 4.188.255.234
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: 4.188.255.234.nip.io   # Replace with your actual domain or IP
+    http:
+      paths:
+      - path: /login
+        pathType: Prefix
+        backend:
+          service:
+            name: login-service-prod
+            port:
+              number: 80
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: login-service-prod
+            port:
+              number: 8083
